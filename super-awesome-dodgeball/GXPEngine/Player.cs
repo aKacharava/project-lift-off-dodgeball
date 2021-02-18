@@ -12,13 +12,12 @@ public class Player : AnimationSprite
         PLAYER_TWO
     }
 
-    public enum PlayerState
+    enum PlayerState
     {
         IDLE,
         MOVING,
         JUMPING,
-        PICKED_UP_BALL,
-        HIT
+        PICKED_UP_BALL
     }
 
     const int LEFT_HALF_BEGINNING = 0;
@@ -41,8 +40,12 @@ public class Player : AnimationSprite
 
     Sprite hitbox;
 
+    PlayerState playerState;
+
     public PlayerSelection state;
-    public PlayerState playerState;
+
+    public static bool player1IsDefeated;
+    public static bool player2IsDefeated;
 
     public Player(float x, float y, float width, float height, PlayerSelection state = PlayerSelection.PLAYER_ONE) : base("img/objects/player-spritesheet.png", 4, 6, 24)
     {
@@ -53,6 +56,8 @@ public class Player : AnimationSprite
         playerState = PlayerState.IDLE;
         jumpingPower = -25f;
         lives = 1;
+        player1IsDefeated = false;
+        player2IsDefeated = false;
 
         SetPlayerFrame();
 
@@ -77,7 +82,20 @@ public class Player : AnimationSprite
         lives -= amountLives;
     }
 
-    public 
+    public void MakePlayer1Defeated()
+    {
+        player1IsDefeated = true;
+    }
+
+    public void MakePlayer2Defeated()
+    {
+        player2IsDefeated = true;
+    }
+
+    public int GetLives()
+    {
+        return lives;
+    }
 
     void HandleState()
     {
@@ -401,24 +419,28 @@ public class Player : AnimationSprite
                 /// Throw ball
                 if (state == PlayerSelection.PLAYER_ONE && Input.GetKeyDown(Key.SPACE))
                 {
+                    SetFrame(11);
                     ball.LateDestroy();
                     MyGame _myGame = game as MyGame;
                     Ball _thrownBall = new Ball(new Vec2(this.x + 80, this.y), 48, 48, Ball.BallState.THROWN);
                     _myGame.LateAddChild(_thrownBall);
                     _thrownBall.ballOnPlayer("player_1");
-                    _thrownBall.MoveBall(throwPower);
+                    _thrownBall.MoveBall(throwPower, -throwPower + 15);
+                    _thrownBall.speedY = 1;
                     playerState = PlayerState.IDLE;
                     pickedUpBall = false;
                     thrown = true;
                 }
                 else if (state == PlayerSelection.PLAYER_TWO && Input.GetKeyDown(Key.ENTER))
                 {
+                    SetFrame(23);
                     ball.LateDestroy();
                     MyGame _myGame = game as MyGame;
                     Ball _thrownBall = new Ball(new Vec2(this.x - 40, this.y), 48, 48, Ball.BallState.THROWN);
                     _myGame.LateAddChild(_thrownBall);
                     _thrownBall.ballOnPlayer("player_2");
-                    _thrownBall.MoveBall(throwPower);
+                    _thrownBall.MoveBall(throwPower, -throwPower + 15);
+                    _thrownBall.speedY = 1;
                     playerState = PlayerState.IDLE;
                     pickedUpBall = false;
                     thrown = true;

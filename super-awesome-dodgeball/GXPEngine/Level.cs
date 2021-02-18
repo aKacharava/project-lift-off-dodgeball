@@ -103,10 +103,16 @@ public class Level : GameObject
                 case "Player_1":
                     Player _player1 = new Player(obj.X, obj.Y, obj.Width, obj.Height);
                     AddChild(_player1);
+
+                    HUD _hud1 = new HUD(_player1, 0, 0);
+                    AddChild(_hud1);
                     break;
                 case "Player_2":
                     Player _player2 = new Player(obj.X, obj.Y, obj.Width, obj.Height, Player.PlayerSelection.PLAYER_TWO);
                     AddChild(_player2);
+
+                    HUD _hud2 = new HUD(_player2, 1000, 0);
+                    AddChild(_hud2);
                     break;
                 case "Ball":
                     Ball _ball = new Ball(new Vec2(obj.X, obj.Y), obj.Width, obj.Height);

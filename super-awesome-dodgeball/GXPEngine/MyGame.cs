@@ -6,7 +6,6 @@ public class MyGame : Game
 {
 	Menu menu;
 
-	Player player;
 	public MyGame() : base(1280, 960, false, false)
 	{
 		targetFps = 60;

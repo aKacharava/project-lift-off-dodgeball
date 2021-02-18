@@ -34,6 +34,9 @@ public class Ball : AnimationSprite
     Vec2 position;
     Vec2 velocity;
 
+    Sound bounce;
+    Sound playerHit;
+
     public BallState state;
 
     public Ball(Vec2 vPosition, float width, float height, BallState state = BallState.IDLE) : base("img/objects/ball-spritesheet.png", 4, 2, 8)
@@ -57,13 +60,17 @@ public class Ball : AnimationSprite
         hitbox.height = this.height / 2;
         hitbox.alpha = 0f;
         AddChild(hitbox);
+
+        bounce = new Sound("sounds/ball-hits-ground.mp3");
+        playerHit = new Sound("sounds/player-hit.mp3");
     }
 
     void Update()
     {
         HandleState();
         ScreenBorderCollisionCheck();
-        //Console.WriteLine("Velocity:  X:" + velocity.x + " Y:" + velocity.y);
+
+        //Console.WriteLine(velocity.y);
     }
 
     public void ballOnPlayer(string player)
@@ -146,11 +153,13 @@ public class Ball : AnimationSprite
         if (state != newState)
             state = newState;
     }
-
+    bool standStill = false;
     void HandleIdleState()
     {
         if (pickedUp == true)
             SetState(BallState.PICKED_UP);
+        if (standStill == true)
+            velocity.y = 0;
         else
             Gravity();
     }
@@ -178,24 +187,26 @@ public class Ball : AnimationSprite
         Gravity();
     }
 
-    public void MoveBall(float throwPower)
+    public void MoveBall(float throwPowerX, float throwPowerY)
     {
         if (player == "player_1")
         {
-            velocity = new Vec2(throwPower, 0);
+            velocity = new Vec2(throwPowerX, throwPowerY);
         }
         else if (player == "player_2")
         {
-            velocity = new Vec2(-throwPower, 0);
+            velocity = new Vec2(-throwPowerX, throwPowerY);
         }
     }
+
+    public int speedY = 1;
 
     /// <summary>
     /// Takes care of Ball Gravity
     /// </summary>
     void Gravity()
     {
-        velocity.y += 1;
+        velocity.y += speedY;
         hasLanded = false;
         Step();
 
@@ -205,8 +216,20 @@ public class Ball : AnimationSprite
             {
                 if (position.y + radius > other.y)
                 {
-                    position.y = other.y - radius;
-                    velocity.y = -BOUNCINESS * velocity.y;
+                    if (velocity.y < 0.6f)
+                    {
+                        speedY = 0;
+                        bounce.Play(true);
+                        standStill = true;
+                    }
+                    else if(speedY != 0)
+                    {
+                        speedY = 1;
+                        position.y = other.y - radius;
+                        velocity.y = -BOUNCINESS * velocity.y;
+                        bounce.Play();
+                        standStill = false;
+                    }
                 }
                 hasLanded = true;
             }
@@ -230,6 +253,25 @@ public class Ball : AnimationSprite
         }
     }
 
+    void CheckPlayerIsDefeated(Player pPlayer)
+    {
+        if (pPlayer.GetLives() == 0)
+        {
+            if (pPlayer.state == Player.PlayerSelection.PLAYER_ONE)
+            {
+                pPlayer.MakePlayer1Defeated();
+            }
+            else if (pPlayer.state == Player.PlayerSelection.PLAYER_TWO)
+            {
+                pPlayer.MakePlayer2Defeated();
+            }
+
+            pPlayer.LateDestroy();
+            pPlayer = null;
+            LateDestroy();
+        }
+    }
+
     void OnCollision(GameObject other)
     {
         if (other is Player)
@@ -240,27 +282,25 @@ public class Ball : AnimationSprite
             {
                 pickedUp = false;
                 thrown = false;
-                _player.playerState = Player.PlayerState.HIT;
                 _player.DeductAmountLives(1);
-                //_player.LateDestroy();
-                //LateDestroy();
-                //MyGame _myGame = game as MyGame;
-                //_myGame.LateAddChild(new Player(235, 571, 64, 64, Player.PlayerSelection.PLAYER_ONE));
-                //_myGame.LateAddChild(new Ball(new Vec2(800, 0), 48, 48));
+
+                CheckPlayerIsDefeated(_player);
+
                 hitPlayer = false;
+
+                playerHit.Play();
             }
             else if (_player.state == Player.PlayerSelection.PLAYER_TWO && state == BallState.THROWN)
             {
                 pickedUp = false;
                 thrown = false;
-                _player.playerState = Player.PlayerState.HIT;
                 _player.DeductAmountLives(1);
-                //_player.LateDestroy();
-                //LateDestroy();
-                //MyGame _myGame = game as MyGame;
-                //_myGame.LateAddChild(new Player(986, 571, 64, 64, Player.PlayerSelection.PLAYER_TWO));
-                //_myGame.LateAddChild(new Ball(new Vec2(200, 0), 48, 48));
+
+                CheckPlayerIsDefeated(_player);
+
                 hitPlayer = false;
+
+                playerHit.Play();
             }
         }
     }

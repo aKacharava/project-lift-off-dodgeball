@@ -93,6 +93,11 @@ public class Menu : GameObject
             musicChannel = intro.Play();
         }
 
+        if (musicChannel.IsPlaying == false)
+        {
+            musicChannel = core.Play();
+        }
+
         ScaleEffect();
         MoveLogo();
 

@@ -308,13 +308,13 @@ public class Player : AnimationSprite
         if (state == PlayerSelection.PLAYER_ONE && Input.GetKey(Key.D) || state == PlayerSelection.PLAYER_TWO && Input.GetKey(Key.RIGHT))/// Move to right
         {
             moving = true;
-            speedX += 3f;
+            speedX += 2.5f;
             CheckIfMoving(speedX, NO_MOVEMENT_Y);
         }
         else if (state == PlayerSelection.PLAYER_ONE && Input.GetKey(Key.A) || state == PlayerSelection.PLAYER_TWO && Input.GetKey(Key.LEFT))/// Move to left
         {
             moving = true;
-            speedX -= 3f;
+            speedX -= 2.5f;
             CheckIfMoving(speedX, NO_MOVEMENT_Y);
         }
         else
@@ -363,7 +363,6 @@ public class Player : AnimationSprite
     {
         speedY++;
 
-
         if (!CheckIfMoving(NO_MOVEMENT_X, speedY))
         {
             if (speedY > 0)
@@ -392,7 +391,7 @@ public class Player : AnimationSprite
     }
 
     bool pickedUpBall = false;
-    float throwPower = 25f;
+    float throwPower = 23f;
 
     void OnCollision(GameObject other)
     {

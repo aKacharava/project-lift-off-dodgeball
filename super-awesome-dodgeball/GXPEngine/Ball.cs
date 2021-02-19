@@ -14,13 +14,10 @@ public class Ball : AnimationSprite
         THROWN
     }
 
-    const int NO_MOVEMENT_X = 0;
-    const int NO_MOVEMENT_Y = 0;
     const int LEFT_BOUNDARY_SCREEN = 0;
     const int RIGHT_BOUNDARY_SCREEN = 1280;
     const int BOTTOM_BOUNDARY_SCREEN = 960;
     const float BOUNCINESS = 0.70f;
-    const float FRICTION_MOVEMENT = 0.8f;
 
     int radius;
     bool pickedUp;
@@ -69,8 +66,6 @@ public class Ball : AnimationSprite
     {
         HandleState();
         ScreenBorderCollisionCheck();
-
-        //Console.WriteLine(velocity.y);
     }
 
     public void ballOnPlayer(string player)
@@ -91,6 +86,27 @@ public class Ball : AnimationSprite
     public void PickUpBall()
     {
         this.LateDestroy();
+    }
+
+    int animationDelay;
+    int animationStep;
+
+    void BallAnimations()
+    {
+        animationDelay = 6;
+
+        if (currentFrame >= 3)
+        {
+            SetFrame(0);
+        }
+
+        animationStep++;
+
+        if (animationStep > animationDelay)
+        {
+            NextFrame();
+            animationStep = 0;
+        }
     }
 
     void Step()
@@ -178,6 +194,8 @@ public class Ball : AnimationSprite
 
     void HandleThrownState()
     {
+        BallAnimations();
+
         if (hasLanded == true && hitPlayer == false)
         {
             thrown = false;
